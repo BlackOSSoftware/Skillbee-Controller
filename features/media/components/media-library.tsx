@@ -2,7 +2,6 @@
 
 import {
   CloudUpload,
-  FileText,
   Film,
   Grid3X3,
   ImageIcon,
@@ -18,7 +17,6 @@ import { useQueries, useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input, Select } from '@/components/ui/input';
-import { KpiCard, type KpiTone } from '@/components/ui/kpi-card';
 import { ActionMenu, type MenuItem } from '@/components/ui/menu';
 import { PageHeader } from '@/components/ui/page-header';
 import { Pagination } from '@/components/ui/pagination';
@@ -29,9 +27,8 @@ import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { cn } from '@/lib/cn';
 import { formatDate, formatRelative, titleCase } from '@/lib/format';
 import { queryKeys } from '@/lib/query-keys';
-import { dashboardService } from '@/services/dashboard.service';
 import { mediaService } from '@/services/media.service';
-import type { CourseVideo, CourseVideoListParams, MediaAsset, MediaListParams, MediaType } from '@/types/media';
+import type { CourseVideo, CourseVideoListParams, MediaAsset, MediaListParams } from '@/types/media';
 import {
   DeletedBadge,
   formatBytes,
@@ -69,30 +66,6 @@ const SORT_OPTIONS = [
   { value: 'sizeBytes:desc', label: 'Largest size' },
   { value: 'sizeBytes:asc', label: 'Smallest size' },
 ] as const;
-
-const STAT_META: { key: 'total' | MediaType; label: string; hint: string; icon: typeof Images; tone: KpiTone }[] = [
-  { key: 'total', label: 'Total Assets', hint: 'All non-deleted media', icon: Images, tone: 'purple' },
-  { key: 'image', label: 'Images', hint: 'Cloudinary + local', icon: ImageIcon, tone: 'sky' },
-  { key: 'video', label: 'Videos', hint: 'Local VPS storage', icon: Film, tone: 'teal' },
-  { key: 'document', label: 'Documents', hint: 'Local VPS storage', icon: FileText, tone: 'amber' },
-];
-
-/** Counts from list pagination totals (no aggregate endpoint exists). */
-function useMediaStats() {
-  const results = useQueries({
-    queries: STAT_META.map((s) => ({
-      queryKey: [...queryKeys.media.all, 'stat', s.key],
-      queryFn: () => dashboardService.count('/admin/media', s.key === 'total' ? {} : { mediaType: s.key }),
-    })),
-  });
-  return STAT_META.reduce(
-    (acc, s, i) => {
-      acc[s.key] = { value: results[i].data ?? null, isLoading: results[i].isPending, error: results[i].error };
-      return acc;
-    },
-    {} as Record<string, { value: number | null; isLoading: boolean; error: unknown }>
-  );
-}
 
 /**
  * Unused-media scan: loads up to UNUSED_SCAN_PAGES pages of assets, fetches
@@ -221,7 +194,6 @@ export function MediaLibrary() {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [selected, setSelected] = useState<MediaAsset | null>(null);
 
-  const stats = useMediaStats();
   const storage = useMediaStorage(mediaPolicy.canReadStorage(user));
   const categories = useMediaCategories();
   const debounced = useDebouncedValue(search.trim(), 400);
@@ -246,7 +218,6 @@ export function MediaLibrary() {
     sortOrder,
     includeDeleted: isDeleted || undefined,
   };
-
   const list = useMediaList(params, !isUnused && !isCourseVideos);
   const unused = useUnusedMedia(page, limit, isUnused);
 
@@ -311,8 +282,6 @@ export function MediaLibrary() {
     setPage(1);
   }
 
-  const storageUsed = storage.data ? storage.data.totals.localBytes + storage.data.totals.cloudinaryBytes : null;
-
   const menuFor = (a: MediaAsset): MenuItem[] => [
     { key: 'view', label: 'View details', icon: <ImageIcon className="size-4" />, onSelect: () => setSelected(a) },
     ...(a.deletedAt || isLessonVideoAsset(a)
@@ -337,41 +306,6 @@ export function MediaLibrary() {
           </div>
         }
       />
-
-      <section aria-label="Media overview" className="mb-6 grid grid-cols-2 gap-2 sm:gap-3 sm:grid-cols-3 xl:grid-cols-6">
-        {STAT_META.map((s) => {
-          const Icon = s.icon;
-          return (
-            <KpiCard
-              key={s.key}
-              label={s.label}
-              hint={s.hint}
-              icon={Icon}
-              tone={s.tone}
-              value={stats[s.key]?.value ?? null}
-              isLoading={stats[s.key]?.isLoading}
-              error={stats[s.key]?.error}
-            />
-          );
-        })}
-        <KpiCard
-          label="Storage Used"
-          hint="Local VPS + Cloudinary"
-          icon={Images}
-          tone="slate"
-          value={storageUsed !== null ? formatBytes(storageUsed) : null}
-          isLoading={storage.isPending}
-          error={storage.error}
-        />
-        <KpiCard
-          label="Unused Assets"
-          hint="No references found"
-          icon={Trash2}
-          tone="coral"
-          value={null}
-          unavailable="Per-asset scan"
-        />
-      </section>
 
       {storage.data ? (
         <Card className="mb-6 min-w-0">

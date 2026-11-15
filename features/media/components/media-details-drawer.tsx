@@ -22,7 +22,7 @@ import {
   ProviderBadge,
   StatusBadge,
 } from '../display';
-import { mediaPolicy, useDeleteMedia, useMediaCategories, useMediaDetail, useMediaReferences, useMediaStorage, useRestoreMedia, useUpdateMedia } from '../hooks';
+import { mediaPolicy, useDeleteMedia, useMediaCategories, useMediaDetail, useMediaReferences, useRestoreMedia, useUpdateMedia } from '../hooks';
 import { useAuth } from '@/hooks/use-auth';
 import { MediaVideoPreview } from './media-video-preview';
 
@@ -97,7 +97,6 @@ export function MediaDetailsDrawer({ asset, onClose, onDeleted }: MediaDetailsDr
   const detail = useMediaDetail(isLessonVideo ? null : asset.id, !isLessonVideo);
   const references = useMediaReferences(asset.id, mediaPolicy.canReadReferences(user) && !isLessonVideo);
   const categories = useMediaCategories();
-  const storage = useMediaStorage(mediaPolicy.canReadStorage(user));
   const update = useUpdateMedia();
   const remove = useDeleteMedia();
   const restore = useRestoreMedia();
@@ -417,18 +416,6 @@ export function MediaDetailsDrawer({ asset, onClose, onDeleted }: MediaDetailsDr
           </Card>
         ) : null}
 
-        {/* Storage */}
-        {storage.data ? (
-          <Card className="p-4">
-            <h3 className="mb-2 text-sm font-semibold text-ink">Storage</h3>
-            <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
-              <MetaRow label="Provider">{current.storageProvider === 'cloudinary' ? 'Cloudinary' : 'VPS (local)'}</MetaRow>
-              <MetaRow label="Library total">{formatBytes(storage.data.totals.localBytes + storage.data.totals.cloudinaryBytes)}</MetaRow>
-              <MetaRow label="VPS media">{formatBytes(storage.data.totals.localBytes)}</MetaRow>
-              <MetaRow label="Cloudinary">{formatBytes(storage.data.totals.cloudinaryBytes)}</MetaRow>
-            </dl>
-          </Card>
-        ) : null}
       </div>
 
       <ConfirmDialog

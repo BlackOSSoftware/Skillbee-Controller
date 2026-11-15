@@ -6,7 +6,7 @@ import { clearPersistedQueries } from '@/lib/query-persist';
 import { queryKeys } from '@/lib/query-keys';
 import { tokenStore } from '@/lib/token-store';
 import { authService } from '@/services/auth.service';
-import type { AuthUser, LoginInput } from '@/types/auth';
+import type { AuthUser, LoginInput, UpdateProfileInput } from '@/types/auth';
 import { endSession } from './session';
 
 /** Resolves to the current user, or null when there is no valid session. */
@@ -43,6 +43,17 @@ export function useLoginMutation() {
       clearPersistedQueries();
       queryClient.removeQueries({ predicate: (q) => q.queryKey[0] !== queryKeys.auth.all[0] });
       queryClient.setQueryData(queryKeys.auth.session(), session.user);
+    },
+  });
+}
+
+/** PUT /auth/me — refreshes the session cache so the whole console sees the update. */
+export function useUpdateProfileMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: UpdateProfileInput) => authService.updateProfile(input),
+    onSuccess: (user) => {
+      queryClient.setQueryData(queryKeys.auth.session(), user);
     },
   });
 }

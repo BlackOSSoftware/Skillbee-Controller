@@ -1,7 +1,7 @@
 import { apiClient, refreshSession } from '@/lib/api-client';
 import { tokenStore } from '@/lib/token-store';
 import type { ApiEnvelope } from '@/types/api';
-import type { AuthSession, AuthUser, LoginInput } from '@/types/auth';
+import type { AuthSession, AuthUser, LoginInput, UpdateProfileInput } from '@/types/auth';
 
 export const authService = {
   async login(input: LoginInput): Promise<AuthSession> {
@@ -18,6 +18,23 @@ export const authService = {
       return session.user;
     }
     const res = await apiClient.get<ApiEnvelope<{ user: AuthUser }>>('/auth/me');
+    return res.data.data.user;
+  },
+
+  /**
+   * PUT /auth/me — always multipart so name fields and the optional photo share
+   * one request. Clearing Content-Type lets the browser set the multipart
+   * boundary (same pattern as assignment submissions in the student app).
+   */
+  async updateProfile(input: UpdateProfileInput): Promise<AuthUser> {
+    const form = new FormData();
+    if (input.firstName !== undefined) form.append('firstName', input.firstName);
+    if (input.lastName !== undefined) form.append('lastName', input.lastName);
+    if (input.photo) form.append('profileImage', input.photo);
+    if (input.removePhoto) form.append('removeProfileImage', 'true');
+    const res = await apiClient.put<ApiEnvelope<{ user: AuthUser }>>('/auth/me', form, {
+      headers: { 'Content-Type': undefined },
+    });
     return res.data.data.user;
   },
 
