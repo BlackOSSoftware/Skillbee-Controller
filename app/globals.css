@@ -1,26 +1,217 @@
 @import "tailwindcss";
 
+/* Class-based dark mode: `.dark` on <html> (set before paint by the theme script). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Light: soft cool-grey canvas, borderless white cards with airy shadows, white sidebar, cyan accent. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+  --canvas: #f5f6fa;
+  --surface: #ffffff;
+  --surface-2: #f6f7fb;
+  --line: #eceef4;
+  --sidebar: #ffffff;
+  --sidebar-2: #ffffff;
+  --sidebar-line: #eef0f5;
+  --sidebar-hover: rgb(22 150 206 / 0.06);
+  --sidebar-active: rgb(22 150 206 / 0.09);
+  --sidebar-ink: #2d3142;
+  --sidebar-ink-muted: #6b7083;
+  --sidebar-ink-subtle: #a1a6b5;
+  --field: #ffffff;
+  --field-border: #e1e4ec;
+  --field-border-hover: #c8cdd9;
+  --ink: #2d3142;
+  --ink-muted: #6b7083;
+  --ink-subtle: #9ba0b0;
+  --primary: #1592ca;
+  --primary-hover: #0f80b3;
+  --primary-fg: #ffffff;
+  --brand: #22b8e6;
+  --brand-soft: #6fd3f2;
+  --accent: #5b7cf0;
+  --success: #1f8a58;
+  --warning: #b26b0c;
+  --danger: #d1495b;
+  --info: #3b74d8;
+  --overlay: rgb(30 34 50 / 0.36);
+  --shadow-card: 0 1px 2px rgb(45 49 66 / 0.03), 0 8px 24px -12px rgb(45 49 66 / 0.08);
+  --shadow-pop: 0 14px 34px -12px rgb(45 49 66 / 0.2), 0 2px 6px -2px rgb(45 49 66 / 0.06);
+}
+
+/* Dark: same soft layout as light on a deep navy canvas, with the cyan accent and gradient highlights. */
+.dark {
+  color-scheme: dark;
+  --canvas: #10131c;
+  --surface: #181c28;
+  --surface-2: #1f2432;
+  --line: #2a3041;
+  --sidebar: #161a26;
+  --sidebar-2: #161a26;
+  --sidebar-line: #252b3a;
+  --sidebar-hover: rgb(56 189 248 / 0.07);
+  --sidebar-active: rgb(56 189 248 / 0.12);
+  --sidebar-ink: #e8eaf3;
+  --sidebar-ink-muted: #9aa1b8;
+  --sidebar-ink-subtle: #6c7390;
+  --field: #141824;
+  --field-border: #323949;
+  --field-border-hover: #475064;
+  --ink: #e8eaf1;
+  --ink-muted: #a3a9ba;
+  --ink-subtle: #737a8e;
+  --primary: #22a6dc;
+  --primary-hover: #3bb7e6;
+  --primary-fg: #ffffff;
+  --brand: #38c2ee;
+  --brand-soft: #7fd6f4;
+  --accent: #7f9cf5;
+  --success: #5fc794;
+  --warning: #e8b25f;
+  --danger: #f2848f;
+  --info: #7fb0ef;
+  --overlay: rgb(4 6 12 / 0.62);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.25), 0 10px 28px -14px rgb(0 0 0 / 0.55);
+  --shadow-pop: 0 14px 34px -12px rgb(0 0 0 / 0.7);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-line: var(--sidebar-line);
+  --color-sidebar-hover: var(--sidebar-hover);
+  --color-sidebar-active: var(--sidebar-active);
+  --color-sidebar-2: var(--sidebar-2);
+  --color-sidebar-ink: var(--sidebar-ink);
+  --color-sidebar-ink-muted: var(--sidebar-ink-muted);
+  --color-sidebar-ink-subtle: var(--sidebar-ink-subtle);
+  --color-field: var(--field);
+  --color-field-border: var(--field-border);
+  --color-field-border-hover: var(--field-border-hover);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-subtle: var(--ink-subtle);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-fg: var(--primary-fg);
+  --color-brand: var(--brand);
+  --color-brand-soft: var(--brand-soft);
+  --color-accent: var(--accent);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+  --color-overlay: var(--overlay);
+  --shadow-card: var(--shadow-card);
+  --shadow-pop: var(--shadow-pop);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--canvas);
+  color: var(--ink);
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 600;
+}
+
+/* Typography for sanitized lesson HTML */
+.lesson-html > * + * {
+  margin-top: 0.75em;
+}
+.lesson-html h1,
+.lesson-html h2,
+.lesson-html h3 {
+  font-weight: 600;
+  line-height: 1.3;
+}
+.lesson-html h1 {
+  font-size: 1.35em;
+}
+.lesson-html h2 {
+  font-size: 1.2em;
+}
+.lesson-html ul {
+  list-style: disc;
+  padding-left: 1.25em;
+}
+.lesson-html ol {
+  list-style: decimal;
+  padding-left: 1.25em;
+}
+.lesson-html a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+.lesson-html blockquote {
+  border-left: 3px solid var(--line);
+  padding-left: 0.9em;
+  color: var(--ink-muted);
+}
+.lesson-html code {
+  background: var(--surface-2);
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+  font-size: 0.9em;
+}
+
+.sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(45 49 66 / 0.12) transparent;
+}
+.dark .sidebar-scroll {
+  scrollbar-color: rgb(255 255 255 / 0.12) transparent;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--primary) 22%, transparent);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes drawer-in {
+  from {
+    opacity: 0.6;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }

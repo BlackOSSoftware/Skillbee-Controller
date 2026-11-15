@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Demo seed state (scripts/seed-assignment-demo.mjs)
+scripts/.assignment-demo-state.json
+scripts/.certificate-demo-state.json
+scripts/.commerce-demo-state.json
+scripts/.reviews-demo-state.json
