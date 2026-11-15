@@ -2,7 +2,7 @@
 
 import { ArrowLeft, ArrowRight, CalendarClock, Download, ExternalLink, FileText, Lock, Paperclip, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui/states';
@@ -168,8 +168,7 @@ function Outline({ topics, current, onOpen }: { topics: LearningTopic[]; current
   );
 }
 
-function CoursePlayerInner() {
-  const { courseId } = useParams<{ courseId: string }>();
+function CoursePlayerInner({ courseId }: { courseId: string }) {
   const router = useRouter();
   const params = useSearchParams();
   const curriculum = useLearningCurriculum(courseId);
@@ -277,10 +276,10 @@ function CoursePlayerInner() {
   );
 }
 
-export function CoursePlayer() {
+export function CoursePlayer({ courseId }: { courseId: string }) {
   return (
     <Suspense fallback={<Skeleton className="h-96 w-full" />}>
-      <CoursePlayerInner />
+      <CoursePlayerInner courseId={courseId} />
     </Suspense>
   );
 }
